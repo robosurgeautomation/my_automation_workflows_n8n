@@ -1,0 +1,591 @@
+{
+  "name": "ISOC Scraper (getting SOC urls)",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        -128
+      ],
+      "id": "d27c8888-aeaf-476a-9639-f35c1b79da29",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1JEQvlGpshqYemSLNJr0SF-hBCOufvkuuzYD-jIkV3Sw",
+          "mode": "list"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JEQvlGpshqYemSLNJr0SF-hBCOufvkuuzYD-jIkV3Sw/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        80,
+        -128
+      ],
+      "id": "dfb764ea-8a96-4c94-9e4e-dc92b3352771",
+      "name": "Get row(s) in sheet",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Aga7pAZzmVm7QF1o",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://serpapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "= {{ $json.university_name }} University islamic society"
+            },
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "api_key",
+              "value": "cd41ba98399809092a50f1109f705fbb87dc21ffcf8609706f489b8510fc1f38"
+            },
+            {
+              "name": "google_domain",
+              "value": "google.com"
+            },
+            {
+              "name": "gl",
+              "value": "uk"
+            },
+            {
+              "name": "hl",
+              "value": "en"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "user-agent",
+              "value": "=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": false,
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -112,
+        192
+      ],
+      "id": "55ab1efc-9b9c-4b16-b5cd-8d107d4f7ae4",
+      "name": "HTTP Request",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const responseData = JSON.parse($input.first().json.data);\n\n// Combine all results\nconst allResults = [\n  ...(responseData.organic_results || []),\n  ...(responseData.related_questions || [])\n];\n\n// Smart filtering for organization URLs\nconst organizationUrls = allResults\n  .filter(result => result.link)\n  .filter(result => {\n    const url = result.link.toLowerCase();\n    const title = (result.title || '').toLowerCase();\n    const snippet = (result.snippet || '').toLowerCase();\n    \n    // Must have organization indicators\n    const hasOrgIndicator = \n      url.includes('/society/') ||\n      url.includes('/organisation/') ||\n      url.includes('/organization/') ||\n      url.includes('/club/') ||\n      url.includes('.ac.uk/') ||\n      title.includes('society') ||\n      title.includes('organization') ||\n      snippet.includes('student society') ||\n      snippet.includes('campus organization');\n    \n    // Must NOT be social media or unrelated sites\n    const isNotSocialMedia = !url.includes('instagram.com') && \n                            !url.includes('facebook.com') &&\n                            !url.includes('wikipedia.org') &&\n                            !url.includes('linkedin.com');\n    \n    return hasOrgIndicator && isNotSocialMedia;\n  })\n  .map(result => ({\n    title: result.title,\n    url: result.link,\n    snippet: result.snippet,\n    position: result.position\n  }));\n\nreturn [{\n  organizationUrls: organizationUrls,\n  totalFound: organizationUrls.length,\n  bestMatch: organizationUrls[0] || null,\n  searchQuery: responseData.search_parameters?.q\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        160
+      ],
+      "id": "127558f5-276d-4dc0-aca5-ab93543fcbef",
+      "name": "Clean University Names"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        272,
+        -128
+      ],
+      "id": "ea0676f8-c463-4999-b312-73b16d5c5d4e",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1G3WmDHxBejsai3dI0i2MpcDUs48JTwcqU8ECbyliwns",
+          "mode": "list",
+          "cachedResultName": "ISOC Scraper",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1G3WmDHxBejsai3dI0i2MpcDUs48JTwcqU8ECbyliwns/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2101376961,
+          "mode": "list",
+          "cachedResultName": "ISOC Scraper (getting SOC urls)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1G3WmDHxBejsai3dI0i2MpcDUs48JTwcqU8ECbyliwns/edit#gid=2101376961"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "isoc_name": "={{ $json.isoc_title }}",
+            "isoc_profile_url": "={{ $json.isoc_url }}",
+            "university_name": "={{ $('Wait1').item.json.university_name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "university_name",
+              "displayName": "university_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "isoc_name",
+              "displayName": "isoc_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "isoc_profile_url",
+              "displayName": "isoc_profile_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1056,
+        0
+      ],
+      "id": "dc6a50a8-91e2-4b0a-b751-6a0dec61e0f2",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Aga7pAZzmVm7QF1o",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "bed4912c-1819-4b20-b682-d200f0395681",
+      "name": "Wait1",
+      "webhookId": "23c402ed-e00f-4cb9-bd81-a12893d21592"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/customsearch/v1",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "AIzaSyA8FnFcIRH4bE2gcTC0s8o2tjW6ckzmyGU"
+            },
+            {
+              "name": "cx",
+              "value": "557d7a30cf2724a27"
+            },
+            {
+              "name": "q",
+              "value": "= {{ $json.university_name }} University islamic society"
+            },
+            {
+              "name": "num",
+              "value": "3"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        0
+      ],
+      "id": "121712b0-338d-4164-9258-7fa5314adbbe",
+      "name": "to search ISOC pages"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Function Node - Universal University ISOC Extractor\nconst searchResults = $input.all();\n\nconst cleanedData = [];\n\nfor (const result of searchResults) {\n  try {\n    const items = result.json.items || [];\n    \n    for (const item of items) {\n      // Extract university name using multiple strategies\n      let universityName = extractUniversityName(item);\n      \n      // Extract ISOC title\n      let isocTitle = extractISOCTitle(item);\n      \n      // Get the URL\n      let isocUrl = item.link || '';\n      \n      // Only add if we have meaningful data\n      if (universityName && isocTitle && isocUrl) {\n        cleanedData.push({\n          university: universityName,\n          isoc_title: isocTitle,\n          isoc_url: isocUrl,\n          snippet: item.snippet || '',\n          confidence: 'high'\n        });\n      }\n    }\n  } catch (error) {\n    // Log error but continue processing other results\n    console.log('Error processing result:', error.message);\n  }\n}\n\n// If no high-confidence matches, try fallback strategies\nif (cleanedData.length === 0 && searchResults[0]?.json?.queries?.request?.[0]?.searchTerms) {\n  const fallbackData = extractFallbackData(searchResults[0].json);\n  cleanedData.push(...fallbackData);\n}\n\nreturn cleanedData.map(item => ({ json: item }));\n\n// Helper functions\nfunction extractUniversityName(item) {\n  const title = item.title || '';\n  const snippet = item.snippet || '';\n  const displayLink = item.displayLink || '';\n  \n  // Strategy 1: Extract from title (most common pattern: \"ISOC Name @ University Name\")\n  const titleMatch = title.match(/(?:@|at|from|of)\\s*(.+?)(?:Students|$|@| -)/i);\n  if (titleMatch) return cleanText(titleMatch[1].trim());\n  \n  // Strategy 2: Look for university patterns in title\n  const uniPatterns = [\n    /(University of [^,@]+)/i,\n    /([^,@]+ University)/i,\n    /(College of [^,@]+)/i,\n    /([^,@]+ College)/i\n  ];\n  \n  for (const pattern of uniPatterns) {\n    const match = title.match(pattern) || snippet.match(pattern);\n    if (match) return cleanText(match[1].trim());\n  }\n  \n  // Strategy 3: Extract from display link (domain name)\n  if (displayLink.includes('.ac.')) {\n    const domainName = displayLink.replace(/^www\\.|\\.ac\\..+$/g, '');\n    return domainName.split('.')\n      .map(word => word.charAt(0).toUpperCase() + word.slice(1))\n      .join(' ') + ' University';\n  }\n  \n  return null;\n}\n\nfunction extractISOCTitle(item) {\n  const title = item.title || '';\n  const snippet = item.snippet || '';\n  \n  // Strategy 1: Look for Islamic Society patterns\n  const isocPatterns = [\n    /([^@]+Islamic Society)/i,\n    /(Islamic Society[^@]*)/i,\n    /(ISOC[^@]*)/i,\n    /(Muslim Student[^@]*)/i,\n    /(Muslim Society[^@]*)/i\n  ];\n  \n  for (const pattern of isocPatterns) {\n    const match = title.match(pattern) || snippet.match(pattern);\n    if (match) return cleanText(match[0].trim());\n  }\n  \n  // Strategy 2: Extract first part of title before connectors\n  const titleMatch = title.match(/^([^@\\-–—]+?)(?=\\s*(?:@|at|from|of| -|–|—))/);\n  if (titleMatch) return cleanText(titleMatch[1].trim());\n  \n  return item.title ? cleanText(item.title) : null;\n}\n\nfunction extractFallbackData(jsonData) {\n  const fallbackResults = [];\n  const searchTerm = jsonData.queries?.request?.[0]?.searchTerms || '';\n  \n  // Extract university name from search terms\n  const universityFromSearch = searchTerm.replace(/(university|college).*$/i, '').trim();\n  \n  const items = jsonData.items || [];\n  for (const item of items) {\n    if (item.link && item.title) {\n      fallbackResults.push({\n        university: universityFromSearch || 'Unknown University',\n        isoc_title: cleanText(item.title),\n        isoc_url: item.link,\n        snippet: item.snippet || '',\n        confidence: 'medium'\n      });\n    }\n  }\n  \n  return fallbackResults;\n}\n\nfunction cleanText(text) {\n  if (!text) return '';\n  \n  return text\n    .replace(/<[^>]*>/g, '') // Remove HTML tags\n    .replace(/\\s+/g, ' ') // Normalize whitespace\n    .replace(/[^\\w\\s@&()-]/g, '') // Remove special chars but keep some\n    .trim();\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        848,
+        0
+      ],
+      "id": "f7e1f16b-8977-4e5a-be3d-e8b4da5915de",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {
+    "to search ISOC pages": [
+      {
+        "json": {
+          "kind": "customsearch#search",
+          "url": {
+            "type": "application/json",
+            "template": "https://www.googleapis.com/customsearch/v1?q={searchTerms}&num={count?}&start={startIndex?}&lr={language?}&safe={safe?}&cx={cx?}&sort={sort?}&filter={filter?}&gl={gl?}&cr={cr?}&googlehost={googleHost?}&c2coff={disableCnTwTranslation?}&hq={hq?}&hl={hl?}&siteSearch={siteSearch?}&siteSearchFilter={siteSearchFilter?}&exactTerms={exactTerms?}&excludeTerms={excludeTerms?}&linkSite={linkSite?}&orTerms={orTerms?}&dateRestrict={dateRestrict?}&lowRange={lowRange?}&highRange={highRange?}&searchType={searchType}&fileType={fileType?}&rights={rights?}&imgSize={imgSize?}&imgType={imgType?}&imgColorType={imgColorType?}&imgDominantColor={imgDominantColor?}&alt=json"
+          },
+          "queries": {
+            "request": [
+              {
+                "title": "Google Custom Search -  Abertay University University islamic society",
+                "totalResults": "28200",
+                "searchTerms": " Abertay University University islamic society",
+                "count": 3,
+                "startIndex": 1,
+                "inputEncoding": "utf8",
+                "outputEncoding": "utf8",
+                "safe": "off",
+                "cx": "557d7a30cf2724a27"
+              }
+            ],
+            "nextPage": [
+              {
+                "title": "Google Custom Search -  Abertay University University islamic society",
+                "totalResults": "28200",
+                "searchTerms": " Abertay University University islamic society",
+                "count": 3,
+                "startIndex": 4,
+                "inputEncoding": "utf8",
+                "outputEncoding": "utf8",
+                "safe": "off",
+                "cx": "557d7a30cf2724a27"
+              }
+            ]
+          },
+          "context": {
+            "title": "Search 1"
+          },
+          "searchInformation": {
+            "searchTime": 0.276117,
+            "formattedSearchTime": "0.28",
+            "totalResults": "28200",
+            "formattedTotalResults": "28,200"
+          },
+          "items": [
+            {
+              "kind": "customsearch#result",
+              "title": "Abertay Islamic Society @ University of Abertay Dundee Students ...",
+              "htmlTitle": "<b>Abertay Islamic Society</b> @ <b>University</b> of <b>Abertay</b> Dundee Students ...",
+              "link": "https://www.abertaysa.com/groups/abertay-islamic-society",
+              "displayLink": "www.abertaysa.com",
+              "snippet": "Our vision is to enhance the university experience of Muslim students by supporting them in their social, educational, and religious needs.",
+              "htmlSnippet": "Our vision is to enhance the <b>university</b> experience of <b>Muslim</b> students by supporting them in their social, educational, and religious needs.",
+              "formattedUrl": "https://www.abertaysa.com/groups/abertay-islamic-society",
+              "htmlFormattedUrl": "https://www.<b>abertay</b>sa.com/groups/<b>abertay</b>-<b>islamic</b>-<b>society</b>",
+              "pagemap": {
+                "metatags": [
+                  {
+                    "og:image": "https://assets.prod.unioncloud-internal.com/group/images/1677/medium/Abertay_Islamic_society_logo.png",
+                    "og:image:width": "400",
+                    "og:type": "website",
+                    "fb:app_id": "843813249049409",
+                    "viewport": "width=device-width, initial-scale = 1.0, maximum-scale = 1.0",
+                    "og:title": "Abertay Islamic Society @ University of Abertay Dundee Students' Association",
+                    "csrf-token": "YQNLguYpDBChAUDF8wBWkkf52gmmBI6wrvxY/YVLG2imbOTB1qEtcWBOKXr99f+DipIS6Ns67HyeexQtshoPRQ==",
+                    "og:image:height": "300",
+                    "og:url": "https://www.abertaysa.com/groups/abertay-islamic-society",
+                    "csrf-param": "authenticity_token",
+                    "og:description": "This is the webpage for Abertay Islamic Society!  In this society, we love to spread the message of Islam, get involved in charity events and just have a good time. Come along if you want to join us in our adventures, meet some new likeminded people and represent your love of community and Islam.  \r\n\r\nSisters Prayer Room: 3059\r\nBrothers Prayer Room: 3057",
+                    "og:image:secure_url": "https://assets.prod.unioncloud-internal.com/group/images/1677/medium/Abertay_Islamic_society_logo.png"
+                  }
+                ],
+                "cse_image": [
+                  {
+                    "src": "https://assets.prod.unioncloud-internal.com/group/images/1677/medium/Abertay_Islamic_society_logo.png"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "customsearch#result",
+              "title": "Faith and Belief | Abertay University",
+              "htmlTitle": "Faith and Belief | <b>Abertay University</b>",
+              "link": "https://www.abertay.ac.uk/life/student-support-and-services/faith-and-belief/",
+              "displayLink": "www.abertay.ac.uk",
+              "snippet": "The Islamic Prayer Rooms are maintained by the Abertay Islamic Society. There are two prayer rooms, one for females and one for males, and they can be found in ...",
+              "htmlSnippet": "The Islamic Prayer Rooms are maintained by the <b>Abertay Islamic Society</b>. There are two prayer rooms, one for females and one for males, and they can be found in&nbsp;...",
+              "formattedUrl": "https://www.abertay.ac.uk/life/student-support-and.../faith-and-belief/",
+              "htmlFormattedUrl": "https://www.<b>abertay</b>.ac.uk/life/student-support-and.../faith-and-belief/",
+              "pagemap": {
+                "cse_thumbnail": [
+                  {
+                    "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2cyNYv84VFga6xlu-l1wBw8SQ96YGHuDsJ6nN2FtAtufNUATa59zeWi47&s",
+                    "width": "225",
+                    "height": "225"
+                  }
+                ],
+                "metatags": [
+                  {
+                    "msapplication-tilecolor": "#ffffff",
+                    "msapplication-config": "/images/browserconfig.xml",
+                    "og:image": "https://www.abertay.ac.uk/media/fmkbmn5d/alert_social2.jpg?width=800&height=800&quality=80&v=1db2f8c4d5da030",
+                    "theme-color": "#ffffff",
+                    "twitter:card": "summary_large_image",
+                    "twitter:title": "Faith and Belief",
+                    "og:type": "article",
+                    "article:published_time": "14/09/2021 14:38:45",
+                    "og:site_name": "Abertay",
+                    "msvalidate.01": "CD1C2A7ED61E49DFF51FB92320635C3F",
+                    "og:title": "Faith and Belief",
+                    "msapplication-tileimage": "/images/mstile-144x144.png",
+                    "og:description": "Abertay University's community seeks a spirit of openness, friendship and mutual respect. We have a number of prayer rooms/quiet rooms across campus and maintain a multi-faith directory of places of worship around the city.",
+                    "twitter:image": "https://www.abertay.ac.uk/media/fmkbmn5d/alert_social2.jpg?width=800&height=800&quality=80&v=1db2f8c4d5da030",
+                    "referrer": "never",
+                    "twitter:site": "@abertayuni",
+                    "article:modified_time": "05/02/2025 12:03:16",
+                    "viewport": "width=device-width, initial-scale=1.0, maximum-scale=5",
+                    "twitter:description": "Abertay University's community seeks a spirit of openness, friendship and mutual respect. We have a number of prayer rooms/quiet rooms across campus and maintain a multi-faith directory of places of worship around the city.",
+                    "og:locale": "en-GB",
+                    "og:url": "https://www.abertay.ac.uk/life/student-support-and-services/faith-and-belief/"
+                  }
+                ],
+                "cse_image": [
+                  {
+                    "src": "https://www.abertay.ac.uk/media/fmkbmn5d/alert_social2.jpg?width=800&height=800&quality=80&v=1db2f8c4d5da030"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "customsearch#result",
+              "title": "Abertay Students' Association on Instagram: \"We're so excited to be ...",
+              "htmlTitle": "<b>Abertay</b> Students&#39; <b>Association</b> on Instagram: &quot;We&#39;re so excited to be ...",
+              "link": "https://www.instagram.com/p/DN26I-oWKTe/",
+              "displayLink": "www.instagram.com",
+              "snippet": "Aug 27, 2025 ... ... Association in Abertay Students Association ... Abertay Uni Islamic Society in Abertay University with @charityweek, @islamicreliefscotland.",
+              "htmlSnippet": "Aug 27, 2025 <b>...</b> ... Association in Abertay Students Association ... <b>Abertay Uni Islamic Society</b> in <b>Abertay University</b> with @charityweek, @islamicreliefscotland.",
+              "formattedUrl": "https://www.instagram.com/p/DN26I-oWKTe/",
+              "htmlFormattedUrl": "https://www.instagram.com/p/DN26I-oWKTe/",
+              "pagemap": {
+                "cse_thumbnail": [
+                  {
+                    "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUkvGbqyQI-AxVUCCm5vqkvGZ9YTadcZRH0WJM0lZl7FZecR1zv09QxTQ&s",
+                    "width": "225",
+                    "height": "225"
+                  }
+                ],
+                "metatags": [
+                  {
+                    "og:image": "https://lookaside.instagram.com/seo/google_widget/crawler/?media_id=3708407046888531166",
+                    "theme-color": "#ffffff",
+                    "twitter:card": "summary_large_image",
+                    "og:site_name": "Instagram",
+                    "application-title": "Instagram",
+                    "al:android:package": "com.instagram.android",
+                    "bingbot": "noarchive",
+                    "medium": "image",
+                    "al:ios:url": "instagram://media?id=3708407046888531166",
+                    "og:description": "27 likes, 0 comments - abertaysa on August 27, 2025: \"We're so excited to be adding a new Freshtival Event on Friday 12th September.\n\nWe have 20 tickets to check out Discovery Point's escape room FOR FREE - with your ticket, you'll also get access to the museum for a whole year! Bring a friend or come solo.\n\nGet your tickets now (link in bio)!🐧\".",
+                    "twitter:image": "https://lookaside.instagram.com/seo/google_widget/crawler/?media_id=3708407046888531166",
+                    "al:ios:app_store_id": "389801252",
+                    "twitter:site": "@instagram",
+                    "instapp:owner_user_id": "3434955218",
+                    "og:type": "article",
+                    "twitter:title": "Abertay Students' Association (@abertaysa) • Instagram photo",
+                    "al:ios:app_name": "Instagram",
+                    "og:title": "Abertay Students' Association on Instagram: \"We're so excited to be adding a new Freshtival Event on Friday 12th September.\n\nWe have 20 tickets to check out Discovery Point's escape room FOR FREE - with your ticket, you'll also get access to the museum for a whole year! Bring a friend or come solo.\n\nGet your tickets now (link in bio)!🐧\"",
+                    "twitter:maxage": "86400",
+                    "color-scheme": "light",
+                    "al:android:url": "https://www.instagram.com/p/DN26I-oWKTe/",
+                    "fb:app_id": "124024574287414",
+                    "apple-mobile-web-app-status-bar-style": "default",
+                    "viewport": "width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover",
+                    "mobile-web-app-capable": "yes",
+                    "og:url": "https://www.instagram.com/p/DN26I-oWKTe/",
+                    "al:android:app_name": "Instagram"
+                  }
+                ],
+                "cse_image": [
+                  {
+                    "src": "https://lookaside.instagram.com/seo/google_widget/crawler/?media_id=3708407046888531166"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "Code in JavaScript": [
+      {
+        "json": {
+          "university": "University of Abertay Dundee",
+          "isoc_title": "Abertay Islamic Society",
+          "isoc_url": "https://www.abertaysa.com/groups/abertay-islamic-society",
+          "snippet": "Our vision is to enhance the university experience of Muslim students by supporting them in their social, educational, and religious needs.",
+          "confidence": "high"
+        }
+      },
+      {
+        "json": {
+          "university": "Faith and Belief  Abertay University",
+          "isoc_title": "The Islamic Prayer Rooms are maintained by the Abertay Islamic Society",
+          "isoc_url": "https://www.abertay.ac.uk/life/student-support-and-services/faith-and-belief/",
+          "snippet": "The Islamic Prayer Rooms are maintained by the Abertay Islamic Society. There are two prayer rooms, one for females and one for males, and they can be found in ...",
+          "confidence": "high"
+        }
+      },
+      {
+        "json": {
+          "university": "ion on Instagram Were so excited to be",
+          "isoc_title": "Aug 27 2025   Association in Abertay Students Association  Abertay Uni Islamic Society",
+          "isoc_url": "https://www.instagram.com/p/DN26I-oWKTe/",
+          "snippet": "Aug 27, 2025 ... ... Association in Abertay Students Association ... Abertay Uni Islamic Society in Abertay University with @charityweek, @islamicreliefscotland.",
+          "confidence": "high"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    },
+    "Clean University Names": {
+      "main": [
+        []
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "to search ISOC pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "to search ISOC pages": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b33e006f-c644-4d3c-a4a5-1ded95a0863d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5b0dfd2044e184863e583610c8c0010916f7c39c7e15938f4b2220d471fbf3fa"
+  },
+  "id": "DDtyyk4BTA8qOCHI",
+  "tags": []
+}

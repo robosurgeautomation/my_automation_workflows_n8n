@@ -1,0 +1,402 @@
+{
+  "name": "Cold Email Sequencer",
+  "nodes": [
+    {
+      "parameters": {
+        "batchSize": "=1",
+        "options": {}
+      },
+      "id": "eea40b71-ac17-4b16-b364-6f3475baf49e",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        96,
+        -96
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {},
+      "id": "ea0b1f67-7f8c-4659-9b74-a93e2434e118",
+      "name": "Limit",
+      "type": "n8n-nodes-base.limit",
+      "position": [
+        -96,
+        64
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "8dc5b028-6f5d-4d76-8852-99180bfb4591",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.Email }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "04b2b0cf-e81d-4d4e-9afa-5ba28d132cff",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        288,
+        -16
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1scLA0owjdsrh6gnFElHsOyzVEHEoTIU_89EvwmNcCPo",
+          "mode": "list",
+          "cachedResultName": "Cold Email Sequencer",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1scLA0owjdsrh6gnFElHsOyzVEHEoTIU_89EvwmNcCPo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 156475123,
+          "mode": "list",
+          "cachedResultName": "Update Records",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1scLA0owjdsrh6gnFElHsOyzVEHEoTIU_89EvwmNcCPo/edit#gid=156475123"
+        },
+        "columns": {
+          "value": {
+            "Sent on": "={{ $now }}",
+            "Message Id": "={{ $json.id }}",
+            "Email Sent ": "Yes",
+            "Email Address ": "={{ $('If').first().json['Email Address '] }}"
+          },
+          "schema": [
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Address ",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Email Address ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sender Email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Sender Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Subject",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Email Subject",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Body",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Email Body",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Sent ",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Email Sent ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sent on",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Sent on",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message Id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Message Id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Email Address "
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "37ebcd18-a9f1-49ce-ad9a-f2315dade239",
+      "name": "Update Records",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        736,
+        -32
+      ],
+      "typeVersion": 4.6,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Aga7pAZzmVm7QF1o",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1scLA0owjdsrh6gnFElHsOyzVEHEoTIU_89EvwmNcCPo",
+          "mode": "list",
+          "cachedResultName": "Cold Email Sequencer",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1scLA0owjdsrh6gnFElHsOyzVEHEoTIU_89EvwmNcCPo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Get Emails",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1scLA0owjdsrh6gnFElHsOyzVEHEoTIU_89EvwmNcCPo/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "98ce5ade-b816-44cc-a192-b8ec2c9d6220",
+      "name": "Get Emails",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -272,
+        64
+      ],
+      "typeVersion": 4.5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Aga7pAZzmVm7QF1o",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "f7c6b715-5f9d-4592-96a2-7bf61d6e4c5a",
+      "name": "Set Timer",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -448,
+        64
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "id": "2db131aa-f2bd-41e3-a425-197b06d6cc66",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        944,
+        32
+      ],
+      "webhookId": "c4cf719a-d47f-4761-8a16-aff92b8e9a19",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "fromEmail": "=mahamqaisar2@gmail.com",
+        "toEmail": "={{ $json.Email }}",
+        "subject": "=Team Islam Greetings",
+        "emailFormat": "text",
+        "text": "=Dear Maham,\n\nI hope this message finds you well. My name is ----, and I represent Team Islam, a group dedicated to fostering community collaboration\n\nWe would appreciate the opportunity to discuss potential collaboration. Please let us know a convenient time to connect further.\n\nThank you for your time and consideration. We look forward to your response.\n\nWarm regards,\n-------\nTeam Islam",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "b0a18ca8-324d-430f-9653-5fcb2fe6a2b5",
+      "name": "connect",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        512,
+        -32
+      ],
+      "webhookId": "49772db0-f2ab-4f5a-9b20-5b4f097f301c",
+      "typeVersion": 2.1,
+      "credentials": {
+        "smtp": {
+          "id": "Zp1L3mV9H3z1hrKx",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Get Emails": [
+      {
+        "json": {
+          "row_number": 2,
+          "Email": "mahamqaisar2@gmail.com"
+        }
+      }
+    ],
+    "Limit": [
+      {
+        "json": {
+          "row_number": 2,
+          "Email": "mahamqaisar2@gmail.com"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "connect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Records": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Emails": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Timer": {
+      "main": [
+        [
+          {
+            "node": "Get Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "connect": {
+      "main": [
+        [
+          {
+            "node": "Update Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2d8f7f22-fad1-4cb4-bf2d-b09ae4427f3d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5b0dfd2044e184863e583610c8c0010916f7c39c7e15938f4b2220d471fbf3fa"
+  },
+  "id": "MPTnmyB6JCIS5A5J",
+  "tags": []
+}

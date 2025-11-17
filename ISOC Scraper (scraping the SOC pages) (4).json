@@ -1,0 +1,531 @@
+{
+  "name": "ISOC Scraper (scraping the SOC pages)",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $json.isoc_profile_url }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "num",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": false,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {}
+          },
+          "timeout": 30000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        864,
+        -304
+      ],
+      "id": "8603fe57-8ebb-44fb-8a90-15531b556298",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "137481b9-7e83-46f8-b737-f2919328cc64",
+              "name": "university name",
+              "value": "={{ $json.university_name }}",
+              "type": "string"
+            },
+            {
+              "id": "a3923d35-ecad-4ea3-836f-7ca603b4fa7a",
+              "name": "isoc_profile_url",
+              "value": "={{ $json.isoc_profile_url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        288,
+        -320
+      ],
+      "id": "96a40a13-e3c5-4fce-bdc4-2ae9c59f9ee0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1G3WmDHxBejsai3dI0i2MpcDUs48JTwcqU8ECbyliwns",
+          "mode": "list",
+          "cachedResultName": "ISOC Scraper",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1G3WmDHxBejsai3dI0i2MpcDUs48JTwcqU8ECbyliwns/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 761643005,
+          "mode": "list",
+          "cachedResultName": "ISOC Scraper (scraping the SOC pages)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1G3WmDHxBejsai3dI0i2MpcDUs48JTwcqU8ECbyliwns/edit#gid=761643005"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "isoc_profile_url": "={{ $json.isoc_profile_url }}",
+            "official_site_or_linktree": "={{ $json.official_site_or_linktree }}",
+            "email_primary": "={{ $json.email_primary }}",
+            "email_alt": "={{ $json.email_alt }}",
+            "contact_form_url": "={{ $json.contact_form_url }}",
+            "instagram": "={{ $json.instagram }}",
+            "facebook": "={{ $json.facebook }}",
+            "committee_names_roles": "={{ $json.committee_names_roles }}",
+            "source": "={{ $json.source }}",
+            "x_twitter / twitter": "={{ $json.x_twitter }}",
+            "isoc_name": "={{ $json.isoc_name }}",
+            "scrape_status": "={{ $json.scrape_status }}",
+            "last_seen": "={{ $json.last_seen }}",
+            "email_confidence": "={{ $json.email_confidence }}",
+            "notes": "={{ $json.notes }}",
+            "university_name": "={{ $('Wait').item.json['university name'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "university_name",
+              "displayName": "university_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "isoc_name",
+              "displayName": "isoc_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "isoc_profile_url",
+              "displayName": "isoc_profile_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "official_site_or_linktree",
+              "displayName": "official_site_or_linktree",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email_primary",
+              "displayName": "email_primary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email_alt",
+              "displayName": "email_alt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contact_form_url",
+              "displayName": "contact_form_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "instagram",
+              "displayName": "instagram",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "facebook",
+              "displayName": "facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "x_twitter / twitter",
+              "displayName": "x_twitter / twitter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "committee_names_roles",
+              "displayName": "committee_names_roles",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "scrape_status",
+              "displayName": "scrape_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_seen",
+              "displayName": "last_seen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email_confidence",
+              "displayName": "email_confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1760,
+        -304
+      ],
+      "id": "624d9792-c317-46b0-a899-92464746fdc4",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Aga7pAZzmVm7QF1o",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1G3WmDHxBejsai3dI0i2MpcDUs48JTwcqU8ECbyliwns",
+          "mode": "list",
+          "cachedResultName": "ISOC Scraper",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1G3WmDHxBejsai3dI0i2MpcDUs48JTwcqU8ECbyliwns/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2101376961,
+          "mode": "list",
+          "cachedResultName": "ISOC Scraper (getting SOC urls)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1G3WmDHxBejsai3dI0i2MpcDUs48JTwcqU8ECbyliwns/edit#gid=2101376961"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        96,
+        -320
+      ],
+      "id": "f8c2e25d-120f-4ac5-8a12-987a3cba079b",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Aga7pAZzmVm7QF1o",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -320
+      ],
+      "id": "dda99672-18eb-4376-983a-2bae6e69b04c",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        688,
+        -304
+      ],
+      "id": "84dc88e5-401b-4060-861a-fc50d0cd9a5f",
+      "name": "Wait",
+      "webhookId": "30886c24-386a-4ba3-bf6f-f8c442fb92f3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        496,
+        -320
+      ],
+      "id": "697ce411-4c0e-46d6-8794-0b67caca3d29",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.0-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.0-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Read and process the HTML data at: {{ $json.data }}. Extract information to generate a pure JSON array where each object strictly follows these 17 columns:Field NameTypeNotesuniversity_nameSingle linee.g., 'University of Birmingham'isoc_nameSingle linee.g., 'Islamic Society (ISoc)'su_urlURLSU society listing pageisoc_profile_urlURLSpecific ISOC page on SU siteofficial_site_or_linktreeURLISOC's own website/linktreeemail_primaryEmailOfficial or committee emailemail_altEmailBackup emailcontact_form_urlURLIf no emails showninstagramURLPublic Instagram URLfacebookURLPublic Facebook URLx_twitterURLPublic X (Twitter) URLcommittee_names_rolesLong textPresident / VP / Welfare etc.sourceSingle selectMust be: 'SU', 'Instagram bio', 'Facebook About', 'Official Site', or 'LinkedIn'.scrape_statusSingle selectMust be: 'new', 'cleaned', 'needs_manual', or 'verified'.last_seenDateLast successful check (YYYY-MM-DD)email_confidence%Heuristic score (0-100)notesLong textAnything unusualEnsure the output is ready for direct import into Google Sheets (an array of objects) and contains all 17 keys for every entry."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        -304
+      ],
+      "id": "fa08c2e6-52d7-4a38-a565-1490f6abc74e",
+      "name": "Message a model",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "VTU2aVxXul7kV8dZ",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract and flatten JSON data from Gemini response\nconst geminiResponse = $input.first().json;\n\ntry {\n    // Extract the JSON string from Gemini's response\n    const responseText = geminiResponse.content.parts[0].text;\n    \n    // Extract JSON from the code block\n    const jsonMatch = responseText.match(/```json\\n([\\s\\S]*?)\\n```/);\n    let jsonData;\n    \n    if (jsonMatch && jsonMatch[1]) {\n        // Parse the JSON from the code block\n        jsonData = JSON.parse(jsonMatch[1]);\n    } else {\n        // Try to parse the entire response as JSON\n        jsonData = JSON.parse(responseText);\n    }\n    \n    // If it's an array, take the first item\n    const data = Array.isArray(jsonData) ? jsonData[0] : jsonData;\n    \n    // Flatten the data into separate columns\n    const flattenedData = {\n        // University Information\n        university_name: data.university_name || \"Not found\",\n        isoc_name: data.isoc_name || \"Not found\",\n        \n        // URLs\n        su_url: data.su_url || \"Not found\",\n        isoc_profile_url: data.isoc_profile_url || \"Not found\",\n        official_site_or_linktree: data.official_site_or_linktree || \"Not found\",\n        contact_form_url: data.contact_form_url || \"Not found\",\n        \n        // Contact Information\n        email_primary: data.email_primary || \"Not found\",\n        email_alt: data.email_alt || \"Not found\",\n        \n        // Social Media\n        instagram: data.instagram || \"Not found\",\n        facebook: data.facebook || \"Not found\",\n        x_twitter: data.x_twitter || \"Not found\",\n        \n        // Committee\n        committee_names_roles: data.committee_names_roles || \"Not found\",\n        \n        // Metadata\n        source: data.source || \"SU\",\n        scrape_status: data.scrape_status || \"new\",\n        last_seen: data.last_seen || new Date().toISOString().split('T')[0],\n        email_confidence: data[\"email_confidence%\"] || data.email_confidence || 0,\n        notes: data.notes || \"No notes\"\n    };\n    \n    // Clean up any null values and convert to strings for Google Sheets\n    Object.keys(flattenedData).forEach(key => {\n        if (flattenedData[key] === null) {\n            flattenedData[key] = \"Not found\";\n        }\n        // Ensure all values are strings for Google Sheets\n        flattenedData[key] = String(flattenedData[key]);\n    });\n    \n    return [{\n        json: flattenedData\n    }];\n    \n} catch (error) {\n    // Return error with all columns as \"Error\"\n    return [{\n        json: {\n            university_name: \"Error\",\n            isoc_name: \"Error\",\n            su_url: \"Error\",\n            isoc_profile_url: \"Error\",\n            official_site_or_linktree: \"Error\",\n            email_primary: \"Error\",\n            email_alt: \"Error\",\n            contact_form_url: \"Error\",\n            instagram: \"Error\",\n            facebook: \"Error\",\n            x_twitter: \"Error\",\n            committee_names_roles: \"Error\",\n            source: \"Error\",\n            scrape_status: \"Error\",\n            last_seen: \"Error\",\n            email_confidence: \"Error\",\n            notes: `Processing error: ${error.message}`\n        }\n    }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1584,
+        -304
+      ],
+      "id": "28109bdc-4f18-4a23-b8bc-725d901b1a3f",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1072,
+        -304
+      ],
+      "id": "deeebb05-3a3c-4ddf-8bde-87eb4c71d0f5",
+      "name": "Wait1",
+      "webhookId": "e1a3e13a-e9af-44e3-b488-f50826ae3e8b"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ee15462c-fa6e-475f-8564-14dfcc7f4d30",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5b0dfd2044e184863e583610c8c0010916f7c39c7e15938f4b2220d471fbf3fa"
+  },
+  "id": "JF9oL0UmoWqJz3J7",
+  "tags": []
+}

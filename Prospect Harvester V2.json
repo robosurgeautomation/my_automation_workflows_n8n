@@ -1,0 +1,1385 @@
+{
+  "name": "Prospect Harvester V2",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        -160
+      ],
+      "id": "4efcf97d-90f2-47c9-9f31-b680e1acdba1",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        352,
+        -144
+      ],
+      "id": "4f56e816-91cd-420a-9749-ec2b06dadd58",
+      "name": "Wait",
+      "webhookId": "dbd08a63-4301-4d00-a9a1-f2bc60471340"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1-wtvDB1ZZfaDFgS6zNxlvzOYre8pWXsBlOTFQpAUyBg",
+          "mode": "list",
+          "cachedResultName": "CICs data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-wtvDB1ZZfaDFgS6zNxlvzOYre8pWXsBlOTFQpAUyBg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1232382887,
+          "mode": "list",
+          "cachedResultName": "n8n_input",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-wtvDB1ZZfaDFgS6zNxlvzOYre8pWXsBlOTFQpAUyBg/edit#gid=1232382887"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -64,
+        -160
+      ],
+      "id": "40176664-c70b-4f62-87a0-d66ac4068dca",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Aga7pAZzmVm7QF1o",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        160,
+        -160
+      ],
+      "id": "bf7f2d1c-bd51-492b-bcc4-5a7c13c583d1",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorSource": "store",
+        "actorId": {
+          "__rl": true,
+          "value": "9X6Pju8NeHNTvzRxF",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Company URL - Mass Profile Finder (anchor/LinkedIn-company-url-finder)",
+          "cachedResultUrl": "https://console.apify.com/actors/9X6Pju8NeHNTvzRxF/input"
+        },
+        "customBody": "={\n    \"queries\": \"{{ $json.website_link }}\"\n}",
+        "timeout": {}
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        272,
+        -288
+      ],
+      "id": "dad89b5a-4ab7-4259-a7fa-c1e0e6e1383d",
+      "name": "Run an Actor and get dataset",
+      "retryOnFail": true,
+      "credentials": {
+        "apifyApi": {
+          "id": "0i5UsdoPHMBLwBzr",
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Find the **actual website URL** for the UK organization from {{ $json.urls }}, named **{{ $('Wait').item.json.name }}**, prioritizing the organization's main website. If the main website URL is not found, return the URL for the **UK Charity Commission** or **Companies House** registration page for the organization as a fallback.  Return the output in JSON format, containing only the link."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        816,
+        -288
+      ],
+      "id": "1b08e77c-58d3-4bd9-abd8-194f4c9b4608",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "VTU2aVxXul7kV8dZ",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const searchData = $input.first().json;\nconst urls = searchData.items.map(item => item.link);\nreturn [{ json: { urls } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        -288
+      ],
+      "id": "ca676e95-c60b-4fde-8475-e27d22ebcece",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst text = response.content.parts[0].text;\nconst urlMatch = text.match(/https?:\\/\\/[^\\s\"']+/);\nconst websiteLink = urlMatch ? urlMatch[0] : null;\n\nreturn [{ json: { website_link: websiteLink } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1088,
+        -288
+      ],
+      "id": "968363f5-eae1-43af-b1ad-2587949cd3fd",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const searchData = $input.first().json;\n\n// Check if items exist and is not empty\nif (searchData.items && searchData.items.length > 0) {\n  const results = searchData.items.map(item => ({\n    url: item.link,\n    title: item.title,\n    snippet: item.snippet\n  }));\n\n  return [{ json: { results, message: \"Search successful\", count: results.length } }];\n} else {\n  // Return empty results with informative message\n  return [{ json: { \n    results: [], \n    message: \"No search results found\", \n    count: 0,\n    search_terms: searchData.queries?.request?.[0]?.searchTerms || \"Unknown\"\n  } }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1728,
+        -288
+      ],
+      "id": "1de8d3a3-0579-4549-a3fe-d0bcdd782d99",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const searchData = $input.first().json;\n\n// Check if items exist and is not empty\nif (searchData.items && searchData.items.length > 0) {\n  const results = searchData.items.map(item => ({\n    url: item.link,\n    title: item.title,\n    snippet: item.snippet\n  }));\n\n  return [{ json: { results, message: \"Search successful\", count: results.length } }];\n} else {\n  // Return empty results with informative message\n  return [{ json: { \n    results: [], \n    message: \"No search results found\", \n    count: 0,\n    search_terms: searchData.queries?.request?.[0]?.searchTerms || \"Unknown\"\n  } }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        544,
+        -80
+      ],
+      "id": "00f7ad31-3652-4010-9396-79dec194db83",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const searchData = $input.first().json;\n\n// Check if items exist and is not empty\nif (searchData.items && searchData.items.length > 0) {\n  const results = searchData.items.map(item => ({\n    url: item.link,\n    title: item.title,\n    snippet: item.snippet\n  }));\n\n  return [{ json: { results, message: \"Search successful\", count: results.length } }];\n} else {\n  // Return empty results with informative message\n  return [{ json: { \n    results: [], \n    message: \"No search results found\", \n    count: 0,\n    search_terms: searchData.queries?.request?.[0]?.searchTerms || \"Unknown\"\n  } }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        -80
+      ],
+      "id": "13aaa95b-400e-4033-9d85-9539b00dc3b9",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/customsearch/v1",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "AIzaSyCc_PrdMT8brtl5DPhrXx3Ga3fkLRX4xMQ"
+            },
+            {
+              "name": "cx",
+              "value": "557d7a30cf2724a27"
+            },
+            {
+              "name": "q",
+              "value": "=site:linkedin.com/in/ ({{ $('Wait').item.json.name }}) (UK) (Volunteer Lead OR Volunteer Manager OR Head of Volunteer OR Volunteer Coordinator OR Volunteer Director)"
+            },
+            {
+              "name": "num",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        -80
+      ],
+      "id": "6cb4aa79-9c89-4dd3-a3a2-5400897b71c7",
+      "name": "For Volunteer Manager"
+    },
+    {
+      "parameters": {
+        "jsCode": "const searchData = $input.first().json;\n\n// Check if items exist and is not empty\nif (searchData.items && searchData.items.length > 0) {\n  const results = searchData.items.map(item => ({\n    url: item.link,\n    title: item.title,\n    snippet: item.snippet\n  }));\n\n  return [{ json: { results, message: \"Search successful\", count: results.length } }];\n} else {\n  // Return empty results with informative message\n  return [{ json: { \n    results: [], \n    message: \"No search results found\", \n    count: 0,\n    search_terms: searchData.queries?.request?.[0]?.searchTerms || \"Unknown\"\n  } }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        -80
+      ],
+      "id": "00e98707-8453-498f-bc40-d6eadf46a15f",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/customsearch/v1",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "AIzaSyCc_PrdMT8brtl5DPhrXx3Ga3fkLRX4xMQ"
+            },
+            {
+              "name": "cx",
+              "value": "557d7a30cf2724a27"
+            },
+            {
+              "name": "q",
+              "value": "=site:linkedin.com/in/ ({{ $('Wait').item.json.name }}) (UK) (Marketing Lead OR Head of Marketing OR Marketing Manager OR Digital Marketing Lead OR Marketing Director)"
+            },
+            {
+              "name": "num",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1072,
+        -80
+      ],
+      "id": "05c7beac-e5a1-473e-bcd8-7c221e4597ca",
+      "name": "For Marketing Lead"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/customsearch/v1",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "AIzaSyCc_PrdMT8brtl5DPhrXx3Ga3fkLRX4xMQ"
+            },
+            {
+              "name": "cx",
+              "value": "557d7a30cf2724a27"
+            },
+            {
+              "name": "q",
+              "value": "={{ $json.name }} UK"
+            },
+            {
+              "name": "num",
+              "value": "3"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        512,
+        -288
+      ],
+      "id": "1f57bd42-49b4-48e6-ae6e-0149448b6891",
+      "name": "For CIC Website"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/customsearch/v1",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "AIzaSyCc_PrdMT8brtl5DPhrXx3Ga3fkLRX4xMQ"
+            },
+            {
+              "name": "cx",
+              "value": "557d7a30cf2724a27"
+            },
+            {
+              "name": "q",
+              "value": "=site:linkedin.com/in/ ({{ $('Wait').item.json.name }}) (UK) (Head of Operations OR Operations Lead OR Operations Manager OR Operational Lead OR Operations Director)"
+            },
+            {
+              "name": "num",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1904,
+        -288
+      ],
+      "id": "108bf625-9159-4a33-abba-9be73dde2ee7",
+      "name": "For Head of Operations"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/customsearch/v1",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "AIzaSyCc_PrdMT8brtl5DPhrXx3Ga3fkLRX4xMQ"
+            },
+            {
+              "name": "cx",
+              "value": "557d7a30cf2724a27"
+            },
+            {
+              "name": "q",
+              "value": "=site:linkedin.com/in/ ({{ $('Wait').item.json.name }}) (CEO OR Director)"
+            },
+            {
+              "name": "num",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1568,
+        -288
+      ],
+      "id": "62c6fc9b-0ba3-40bc-8006-fb1cd11f3421",
+      "name": "For CEO or Founder"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-wtvDB1ZZfaDFgS6zNxlvzOYre8pWXsBlOTFQpAUyBg",
+          "mode": "list",
+          "cachedResultName": "CICs data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-wtvDB1ZZfaDFgS6zNxlvzOYre8pWXsBlOTFQpAUyBg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 168273862,
+          "mode": "list",
+          "cachedResultName": "n8n_output",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-wtvDB1ZZfaDFgS6zNxlvzOYre8pWXsBlOTFQpAUyBg/edit#gid=168273862"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $json.organization_name }}",
+            "CIC Website": "={{ $json.organization_website }}",
+            "CIC Linkedin": "={{ $json.organization_linkedin }}",
+            "CEO Name": "={{ $json.ceo_name }}",
+            "CEO Designation details": "={{ $json.ceo_role }}",
+            "CEO Linkedin": "={{ $json.ceo_linkedin }}",
+            "Head Of Operations Name ": "={{ $json.operations_lead_name }}",
+            "Head of Operations Designation details": "={{ $json.operations_lead_role }}",
+            "Head of Operations Linkedin": "={{ $json.operations_lead_linkedin }}",
+            "⁠volunteer lead / manager Linkedin": "={{ $json.volunteer_lead_linkedin }}",
+            "⁠volunteer lead / manager details": "={{ $json.volunteer_lead_role }}",
+            "⁠volunteer lead / manager Name": "={{ $json.volunteer_lead_name }}",
+            "Marketing lead Name ": "={{ $json.marketing_lead_name }}",
+            "Marketing lead details": "={{ $json.marketing_lead_role }}",
+            "Marketing lead Linkedin": "={{ $json.marketing_lead_linkedin }}"
+          },
+          "matchingColumns": [
+            "CIC Website"
+          ],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CIC Website",
+              "displayName": "CIC Website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CIC Linkedin",
+              "displayName": "CIC Linkedin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CEO Name",
+              "displayName": "CEO Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CEO Designation details",
+              "displayName": "CEO Designation details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CEO Linkedin",
+              "displayName": "CEO Linkedin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CEO Email",
+              "displayName": "CEO Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CEO Phone",
+              "displayName": "CEO Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Head Of Operations Name ",
+              "displayName": "Head Of Operations Name ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Head of Operations Designation details",
+              "displayName": "Head of Operations Designation details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Head of Operations Linkedin",
+              "displayName": "Head of Operations Linkedin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Head of Operations Email",
+              "displayName": "Head of Operations Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Head of Operations Phone",
+              "displayName": "Head of Operations Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "⁠volunteer lead / manager Name",
+              "displayName": "⁠volunteer lead / manager Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "⁠volunteer lead / manager details",
+              "displayName": "⁠volunteer lead / manager details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "⁠volunteer lead / manager Linkedin",
+              "displayName": "⁠volunteer lead / manager Linkedin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "⁠volunteer lead / manager Email",
+              "displayName": "⁠volunteer lead / manager Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "⁠volunteer lead / manager Phone",
+              "displayName": "⁠volunteer lead / manager Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Marketing lead Name ",
+              "displayName": "Marketing lead Name ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Marketing lead details",
+              "displayName": "Marketing lead details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Marketing lead Linkedin",
+              "displayName": "Marketing lead Linkedin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Marketing lead Email",
+              "displayName": "Marketing lead Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Marketing lead Phone",
+              "displayName": "Marketing lead Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2048,
+        -80
+      ],
+      "id": "f90d4613-aa89-45a9-a7ac-dec20351bf73",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Aga7pAZzmVm7QF1o",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "de607747-16b0-4d08-88ad-f6c708f55530",
+              "name": "name",
+              "value": "={{ $('Wait').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "0e67ca17-3c96-49c3-b0d6-d5eb020cb79d",
+              "name": "CIC Website",
+              "value": "={{ $('Code in JavaScript1').item.json.website_link }}",
+              "type": "string"
+            },
+            {
+              "id": "92b99cd5-1adc-48db-975d-8b9734d7943b",
+              "name": "CIC Linkedin",
+              "value": "={{ $('Code in JavaScript6').item.json.results[0].url }}\n{{ $('Code in JavaScript6').item.json.results[0].title }}\n{{ $('Code in JavaScript6').item.json.results[0].snippet }}",
+              "type": "string"
+            },
+            {
+              "id": "4149e79f-d90a-4c74-89c0-1cd74557840b",
+              "name": "CEO Name",
+              "value": "={{ $('Code in JavaScript2').item.json.results[0].title }}",
+              "type": "string"
+            },
+            {
+              "id": "14e985ee-f7eb-41ac-92bf-94961d74cdd9",
+              "name": "CEO Designation details",
+              "value": "={{ $('Code in JavaScript2').item.json.results[0].snippet }}",
+              "type": "string"
+            },
+            {
+              "id": "761c4f13-e787-4270-b423-af92d19a55f1",
+              "name": "CEO Linkedin",
+              "value": "={{ $('Code in JavaScript2').item.json.results[0].url }}",
+              "type": "string"
+            },
+            {
+              "id": "5ea67134-648d-4d6c-81fd-9a40f516663f",
+              "name": "Head Of Operations Name ",
+              "value": "={{ $('Code in JavaScript3').item.json.results[0].title }}",
+              "type": "string"
+            },
+            {
+              "id": "6f828764-3e12-4e86-8495-cf85568fdaaf",
+              "name": "Head of Operations Designation details",
+              "value": "={{ $('Code in JavaScript3').item.json.results[0].snippet }}",
+              "type": "string"
+            },
+            {
+              "id": "df08ec4e-6353-48bc-8bf1-68437a41fe9c",
+              "name": "Head of Operations Linkedin",
+              "value": "={{ $('Code in JavaScript3').item.json.results[0].url }}",
+              "type": "string"
+            },
+            {
+              "id": "9568beee-b596-4f1c-b5ca-dc02c3cfa6b6",
+              "name": "⁠volunteer lead / manager Name",
+              "value": "={{ $('Code in JavaScript4').item.json.results[0].title }}",
+              "type": "string"
+            },
+            {
+              "id": "9cf34b95-de8f-453e-adb5-141f34332bea",
+              "name": "⁠volunteer lead / manager details",
+              "value": "={{ $('Code in JavaScript4').item.json.results[0].snippet }}",
+              "type": "string"
+            },
+            {
+              "id": "b46a8593-bb33-432d-a100-5134f49d4dd5",
+              "name": "⁠volunteer lead / manager Linkedin",
+              "value": "={{ $('Code in JavaScript4').item.json.results[0].url }}",
+              "type": "string"
+            },
+            {
+              "id": "bf14e1bc-5510-430c-ba4f-dbcf9dfbd179",
+              "name": "Marketing lead Name ",
+              "value": "={{ $json.results[0].title }}",
+              "type": "string"
+            },
+            {
+              "id": "4e534ebe-f679-471a-9f6e-ceef511b9fb0",
+              "name": "Marketing lead details",
+              "value": "={{ $json.results[0].snippet }}",
+              "type": "string"
+            },
+            {
+              "id": "5ad4a146-447e-4137-bf3d-2d2665821b94",
+              "name": "Marketing lead Linkedin",
+              "value": "={{ $json.results[0].url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1408,
+        -80
+      ],
+      "id": "b8d82cf7-8be8-4de0-90a4-940bff02df47",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Act as a data refinement specialist. You will receive organizational data with potential inaccuracies. Your task is to extract and provide ONLY the verified, correct information in a clean format.\n\n**TASK:**\nFor each organization provided, research and return ONLY verified factual data:\n- Actual verified person names\n- Clean one-line role descriptions  \n- Correct LinkedIn URLs (keep as provided if valid)\n- Remove unverified or incorrect entries\n\n**REQUIRED OUTPUT FORMAT:**\nReturn a clean JSON array where each organization contains ONLY verified data:\n\n```json\n[\n  {\n    \"organization\": \"Verified Organization Name\",\n    \"website\": \"URL (if verified)\",\n    \"linkedin\": \"URL (if verified)\",\n    \"ceo\": {\n      \"name\": \"Actual Verified Name\",\n      \"role\": \"One-line verified role description\",\n      \"linkedin\": \"URL\"\n    },\n    \"operations_lead\": {\n      \"name\": \"Actual Verified Name\", \n      \"role\": \"One-line verified role description\",\n      \"linkedin\": \"URL\"\n    },\n    \"volunteer_lead\": {\n      \"name\": \"Actual Verified Name\",\n      \"role\": \"One-line verified role description\", \n      \"linkedin\": \"URL\"\n    },\n    \"marketing_lead\": {\n      \"name\": \"Actual Verified Name\",\n      \"role\": \"One-line verified role description\",\n      \"linkedin\": \"URL\"\n    }\n  }\nThis is the required data:\n {{ $json.name }},\n{{ $json[\"CIC Website\"] }},\n{{ $json[\"CIC Linkedin\"] }},\n{{ $json[\"CEO Name\"] }},\n{{ $json[\"CEO Designation details\"] }},\n{{ $json[\"CEO Linkedin\"] }},\n{{ $json[\"Head Of Operations Name \"] }},\n{{ $json[\"Head of Operations Designation details\"] }},\n{{ $json[\"Head of Operations Linkedin\"] }},\n{{ $json[\"⁠volunteer lead / manager Name\"] }},\n{{ $json[\"⁠volunteer lead / manager details\"] }},\n{{ $json[\"⁠volunteer lead / manager Linkedin\"] }},\n{{ $json[\"Marketing lead Name \"] }},\n{{ $json[\"Marketing lead details\"] }},\n{{ $json[\"Marketing lead Linkedin\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        -80
+      ],
+      "id": "80885080-51df-420d-bed0-50f6b09c65fe",
+      "name": "Message a model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "VTU2aVxXul7kV8dZ",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst text = response.content.parts[0].text;\n\n// Extract JSON from the text response\nconst jsonMatch = text.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/);\nconst verifiedData = jsonMatch ? JSON.parse(jsonMatch[0]) : [];\n\n// Create flat mappable fields for each organization\nconst mappableData = verifiedData.map(org => ({\n  // Organization fields\n  organization_name: org.organization || null,\n  organization_website: org.website || null,\n  organization_linkedin: org.linkedin || null,\n  \n  // CEO fields\n  ceo_name: org.ceo?.name || null,\n  ceo_role: org.ceo?.role || null,\n  ceo_linkedin: org.ceo?.linkedin || null,\n  \n  // Operations Lead fields\n  operations_lead_name: org.operations_lead?.name || null,\n  operations_lead_role: org.operations_lead?.role || null,\n  operations_lead_linkedin: org.operations_lead?.linkedin || null,\n  \n  // Volunteer Lead fields\n  volunteer_lead_name: org.volunteer_lead?.name || null,\n  volunteer_lead_role: org.volunteer_lead?.role || null,\n  volunteer_lead_linkedin: org.volunteer_lead?.linkedin || null,\n  \n  // Marketing Lead fields\n  marketing_lead_name: org.marketing_lead?.name || null,\n  marketing_lead_role: org.marketing_lead?.role || null,\n  marketing_lead_linkedin: org.marketing_lead?.linkedin || null\n}));\n\nreturn mappableData;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1872,
+        -80
+      ],
+      "id": "aecae704-7e9e-417d-9ec4-fcc30b318d0e",
+      "name": "Code in JavaScript7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const searchData = $input.first().json;\n\n// Check if items exist and is not empty\nif (searchData.items && searchData.items.length > 0) {\n  const results = searchData.items.map(item => ({\n    url: item.link,\n    title: item.title,\n    snippet: item.snippet\n  }));\n\n  return [{ json: { results, message: \"Search successful\", count: results.length } }];\n} else {\n  // Return empty results with informative message\n  return [{ json: { \n    results: [], \n    message: \"No search results found\", \n    count: 0,\n    search_terms: searchData.queries?.request?.[0]?.searchTerms || \"Unknown\"\n  } }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        -288
+      ],
+      "id": "fd6a291e-0175-4d98-8029-6a9b1bc6c78d",
+      "name": "Code in JavaScript6"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/customsearch/v1",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "AIzaSyCc_PrdMT8brtl5DPhrXx3Ga3fkLRX4xMQ"
+            },
+            {
+              "name": "cx",
+              "value": "557d7a30cf2724a27"
+            },
+            {
+              "name": "q",
+              "value": "= {{ $json.website_link }} linkedin UK"
+            },
+            {
+              "name": "num",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1248,
+        -288
+      ],
+      "id": "3fe5fa6c-ed6c-4575-83ce-a0a3b5fe3d2b",
+      "name": "For company linkedin"
+    }
+  ],
+  "pinData": {
+    "For company linkedin": [
+      {
+        "json": {
+          "kind": "customsearch#search",
+          "url": {
+            "type": "application/json",
+            "template": "https://www.googleapis.com/customsearch/v1?q={searchTerms}&num={count?}&start={startIndex?}&lr={language?}&safe={safe?}&cx={cx?}&sort={sort?}&filter={filter?}&gl={gl?}&cr={cr?}&googlehost={googleHost?}&c2coff={disableCnTwTranslation?}&hq={hq?}&hl={hl?}&siteSearch={siteSearch?}&siteSearchFilter={siteSearchFilter?}&exactTerms={exactTerms?}&excludeTerms={excludeTerms?}&linkSite={linkSite?}&orTerms={orTerms?}&dateRestrict={dateRestrict?}&lowRange={lowRange?}&highRange={highRange?}&searchType={searchType}&fileType={fileType?}&rights={rights?}&imgSize={imgSize?}&imgType={imgType?}&imgColorType={imgColorType?}&imgDominantColor={imgDominantColor?}&alt=json"
+          },
+          "queries": {
+            "request": [
+              {
+                "title": "Google Custom Search -  https://sustainablymuslim.org/ linkedin UK",
+                "totalResults": "283",
+                "searchTerms": " https://sustainablymuslim.org/ linkedin UK",
+                "count": 1,
+                "startIndex": 1,
+                "inputEncoding": "utf8",
+                "outputEncoding": "utf8",
+                "safe": "off",
+                "cx": "557d7a30cf2724a27"
+              }
+            ],
+            "nextPage": [
+              {
+                "title": "Google Custom Search -  https://sustainablymuslim.org/ linkedin UK",
+                "totalResults": "283",
+                "searchTerms": " https://sustainablymuslim.org/ linkedin UK",
+                "count": 1,
+                "startIndex": 2,
+                "inputEncoding": "utf8",
+                "outputEncoding": "utf8",
+                "safe": "off",
+                "cx": "557d7a30cf2724a27"
+              }
+            ]
+          },
+          "context": {
+            "title": "Search 1"
+          },
+          "searchInformation": {
+            "searchTime": 0.153186,
+            "formattedSearchTime": "0.15",
+            "totalResults": "283",
+            "formattedTotalResults": "283"
+          },
+          "items": [
+            {
+              "kind": "customsearch#result",
+              "title": "Cookie Policy (UK) - Sustainably Muslim",
+              "htmlTitle": "Cookie Policy (<b>UK</b>) - <b>Sustainably Muslim</b>",
+              "link": "https://sustainablymuslim.org/cookie-policy-uk/",
+              "displayLink": "sustainablymuslim.org",
+              "snippet": "Oct 13, 2024 ... Our website, https://sustainablymuslim.org (hereinafter: \"the website\") uses cookies and other related technologies (for convenience all ...",
+              "htmlSnippet": "Oct 13, 2024 <b>...</b> Our website, <b>https</b>://<b>sustainablymuslim</b>.<b>org</b> (hereinafter: &quot;the website&quot;) uses cookies and other related technologies (for convenience all&nbsp;...",
+              "formattedUrl": "https://sustainablymuslim.org/cookie-policy-uk/",
+              "htmlFormattedUrl": "https://sustainablymuslim.org/cookie-policy-<b>uk</b>/",
+              "pagemap": {
+                "metatags": [
+                  {
+                    "og:type": "article",
+                    "article:published_time": "2024-10-13T21:17:04+00:00",
+                    "twitter:card": "summary_large_image",
+                    "twitter:title": "Cookie Policy (UK) - Sustainably Muslim",
+                    "theme-color": "#DB5D1F",
+                    "og:site_name": "Sustainably Muslim - We are empowering Muslims and diverse communities to protect  the environment.",
+                    "article:modified_time": "2024-10-14T21:25:34+00:00",
+                    "viewport": "width=device-width, initial-scale=1",
+                    "og:title": "Cookie Policy (UK) - Sustainably Muslim",
+                    "og:locale": "en_US",
+                    "og:url": "https://sustainablymuslim.org/cookie-policy-uk/",
+                    "msapplication-tileimage": "https://sustainablymuslim.org/wp-content/uploads/2024/09/cropped-image00001-1-270x270.png"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "Message a model": [
+      {
+        "json": {
+          "content": {
+            "parts": [
+              {
+                "text": "```json\n{\n  \"link\": \"https://sustainablymuslim.org/\"\n}\n```"
+              }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP",
+          "index": 0
+        }
+      }
+    ],
+    "For CIC Website": [
+      {
+        "json": {
+          "kind": "customsearch#search",
+          "url": {
+            "type": "application/json",
+            "template": "https://www.googleapis.com/customsearch/v1?q={searchTerms}&num={count?}&start={startIndex?}&lr={language?}&safe={safe?}&cx={cx?}&sort={sort?}&filter={filter?}&gl={gl?}&cr={cr?}&googlehost={googleHost?}&c2coff={disableCnTwTranslation?}&hq={hq?}&hl={hl?}&siteSearch={siteSearch?}&siteSearchFilter={siteSearchFilter?}&exactTerms={exactTerms?}&excludeTerms={excludeTerms?}&linkSite={linkSite?}&orTerms={orTerms?}&dateRestrict={dateRestrict?}&lowRange={lowRange?}&highRange={highRange?}&searchType={searchType}&fileType={fileType?}&rights={rights?}&imgSize={imgSize?}&imgType={imgType?}&imgColorType={imgColorType?}&imgDominantColor={imgDominantColor?}&alt=json"
+          },
+          "queries": {
+            "request": [
+              {
+                "title": "Google Custom Search - SUSTAINABLY MUSLIM CIC UK",
+                "totalResults": "112000",
+                "searchTerms": "SUSTAINABLY MUSLIM CIC UK",
+                "count": 3,
+                "startIndex": 1,
+                "inputEncoding": "utf8",
+                "outputEncoding": "utf8",
+                "safe": "off",
+                "cx": "557d7a30cf2724a27"
+              }
+            ],
+            "nextPage": [
+              {
+                "title": "Google Custom Search - SUSTAINABLY MUSLIM CIC UK",
+                "totalResults": "112000",
+                "searchTerms": "SUSTAINABLY MUSLIM CIC UK",
+                "count": 3,
+                "startIndex": 4,
+                "inputEncoding": "utf8",
+                "outputEncoding": "utf8",
+                "safe": "off",
+                "cx": "557d7a30cf2724a27"
+              }
+            ]
+          },
+          "context": {
+            "title": "Search 1"
+          },
+          "searchInformation": {
+            "searchTime": 0.158145,
+            "formattedSearchTime": "0.16",
+            "totalResults": "112000",
+            "formattedTotalResults": "112,000"
+          },
+          "items": [
+            {
+              "kind": "customsearch#result",
+              "title": "SUSTAINABLY MUSLIM CIC overview - Companies House - GOV.UK",
+              "htmlTitle": "<b>SUSTAINABLY MUSLIM CIC</b> overview - Companies House - GOV.<b>UK</b>",
+              "link": "https://find-and-update.company-information.service.gov.uk/company/14823093",
+              "displayLink": "find-and-update.company-information.service.gov.uk",
+              "snippet": "SUSTAINABLY MUSLIM CIC - Free company information from Companies House including registered office address, filing history, accounts, annual return, ...",
+              "htmlSnippet": "<b>SUSTAINABLY MUSLIM CIC</b> - Free company information from Companies House including registered office address, filing history, accounts, annual return,&nbsp;...",
+              "formattedUrl": "https://find-and-update.company-information.service.gov.uk/.../14823093",
+              "htmlFormattedUrl": "https://find-and-update.company-information.service.gov.<b>uk</b>/.../14823093",
+              "pagemap": {
+                "metatags": [
+                  {
+                    "og:image": "//d3qoh6aww4nxt5.cloudfront.net/images/govuk-frontend/v5.11.0/rebrand/govuk-opengraph-image.png",
+                    "theme-color": "#1d70b8",
+                    "viewport": "width=device-width, initial-scale=1",
+                    "format-detection": "telephone=no"
+                  }
+                ],
+                "cse_image": [
+                  {
+                    "src": "//d3qoh6aww4nxt5.cloudfront.net/images/govuk-frontend/v5.11.0/rebrand/govuk-opengraph-image.png"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "customsearch#result",
+              "title": "Sustainably Muslim CIC (@sustainablymuslim) • Instagram photos ...",
+              "htmlTitle": "<b>Sustainably Muslim CIC</b> (@<b>sustainablymuslim</b>) • Instagram photos ...",
+              "link": "https://www.instagram.com/sustainablymuslim/?hl=en",
+              "displayLink": "www.instagram.com",
+              "snippet": "6443 Followers, 2149 Following, 354 Posts - Sustainably Muslim CIC (@sustainablymuslim) on Instagram: \"Inspiring Muslims to protect the environment through: ...",
+              "htmlSnippet": "6443 Followers, 2149 Following, 354 Posts - <b>Sustainably Muslim CIC</b> (@sustainablymuslim) on Instagram: &quot;Inspiring <b>Muslims</b> to protect the environment through:&nbsp;...",
+              "formattedUrl": "https://www.instagram.com/sustainablymuslim/?hl=en",
+              "htmlFormattedUrl": "https://www.instagram.com/<b>sustainablymuslim</b>/?hl=en",
+              "pagemap": {
+                "metatags": [
+                  {
+                    "og:image": "https://scontent-atl3-2.cdninstagram.com/v/t51.2885-19/273026664_993715158219548_7905974738160513055_n.jpg?stp=dst-jpg_s100x100_tt6&_nc_cat=102&ccb=7-5&_nc_sid=bf7eb4&efg=eyJ2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLnd3dy4xMDgwLkMzIn0%3D&_nc_ohc=v4UzbXVenRcQ7kNvwEphkYa&_nc_oc=Adm9fGfx4OHwyIZlk27kKkWiLVCPQFMTESdP-pSuOdwexFJKAyl2PPgAiwAEnfDs2AQ&_nc_zt=24&_nc_ht=scontent-atl3-2.cdninstagram.com&oh=00_AfiKYF-3tXUCAaJ7VywvnCjvJxj0Bz3LYTwsB1vq9YeCxg&oe=6911AE26",
+                    "theme-color": "#FFFFFF",
+                    "og:type": "profile",
+                    "al:ios:app_name": "Instagram",
+                    "og:title": "Sustainably Muslim CIC (@sustainablymuslim) • Instagram photos and videos",
+                    "application-title": "Instagram",
+                    "al:android:package": "com.instagram.android",
+                    "bingbot": "noarchive",
+                    "al:ios:url": "instagram://user?username=sustainablymuslim",
+                    "color-scheme": "light",
+                    "og:description": "6,443 Followers, 2,149 Following, 354 Posts - See Instagram photos and videos from Sustainably Muslim CIC (@sustainablymuslim)",
+                    "al:ios:app_store_id": "389801252",
+                    "al:android:url": "https://instagram.com/_u/sustainablymuslim/",
+                    "apple-mobile-web-app-status-bar-style": "default",
+                    "viewport": "width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover",
+                    "mobile-web-app-capable": "yes",
+                    "og:url": "https://www.instagram.com/sustainablymuslim/",
+                    "al:android:app_name": "Instagram"
+                  }
+                ],
+                "cse_image": [
+                  {
+                    "src": "https://scontent-atl3-2.cdninstagram.com/v/t51.2885-19/273026664_993715158219548_7905974738160513055_n.jpg?stp=dst-jpg_s100x100_tt6&_nc_cat=102&ccb=7-5&_nc_sid=bf7eb4&efg=eyJ2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLnd3dy4xMDgwLkMzIn0%3D&_nc_ohc=v4UzbXVenRcQ7kNvwEphkYa&_nc_oc=Adm9fGfx4OHwyIZlk27kKkWiLVCPQFMTESdP-pSuOdwexFJKAyl2PPgAiwAEnfDs2AQ&_nc_zt=24&_nc_ht=scontent-atl3-2.cdninstagram.com&oh=00_AfiKYF-3tXUCAaJ7VywvnCjvJxj0Bz3LYTwsB1vq9YeCxg&oe=6911AE26"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "customsearch#result",
+              "title": "Sustainably Muslim",
+              "htmlTitle": "<b>Sustainably Muslim</b>",
+              "link": "https://sustainablymuslim.org/",
+              "displayLink": "sustainablymuslim.org",
+              "snippet": "We are empowering Muslims and diverse communities to protect the environment.​ Partner with us Explore more What we do Events & workshops Community garden ...",
+              "htmlSnippet": "We are empowering <b>Muslims</b> and diverse communities to protect the environment.​ Partner with us Explore more What we do Events &amp; workshops Community garden&nbsp;...",
+              "formattedUrl": "https://sustainablymuslim.org/",
+              "htmlFormattedUrl": "https://<b>sustainablymuslim</b>.org/",
+              "pagemap": {
+                "cse_thumbnail": [
+                  {
+                    "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMuQNrc9hnRP0YkZfG1T-Wbjvzap8qB1XR6OBEkkQIdxTdkzhQgRQ3geQh&s",
+                    "width": "259",
+                    "height": "194"
+                  }
+                ],
+                "metatags": [
+                  {
+                    "og:type": "article",
+                    "article:published_time": "2024-04-01T09:49:08+00:00",
+                    "twitter:card": "summary_large_image",
+                    "twitter:title": "Sustainably Muslim",
+                    "theme-color": "#DB5D1F",
+                    "og:site_name": "Sustainably Muslim - We are empowering Muslims and diverse communities to protect  the environment.",
+                    "og:title": "Sustainably Muslim",
+                    "msapplication-tileimage": "https://sustainablymuslim.org/wp-content/uploads/2024/09/cropped-image00001-1-270x270.png",
+                    "og:description": "We are empowering Muslims and diverse communities to protect the environment.​ Partner with us Explore more What we do Events & workshops Community garden two billion strong cSR Days We've Worked with over 1500 people and partnered with over 25 organisations Who We've Worked With",
+                    "article:modified_time": "2024-10-20T21:53:26+00:00",
+                    "viewport": "width=device-width, initial-scale=1",
+                    "twitter:description": "We are empowering Muslims and diverse communities to protect the environment.​ Partner with us Explore more What we do Events & workshops Community garden two billion strong cSR Days We've Worked with over 1500 people and partnered with over 25 organisations Who We've Worked With",
+                    "og:locale": "en_US",
+                    "og:url": "https://sustainablymuslim.org/"
+                  }
+                ],
+                "cse_image": [
+                  {
+                    "src": "https://sustainablymuslim.org/wp-content/uploads/2024/10/image00014.jpeg"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "For CIC Website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run an Actor and get dataset": {
+      "main": [
+        []
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "For company linkedin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "For Head of Operations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "For Volunteer Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "For Marketing Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For Volunteer Manager": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For Marketing Lead": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For CIC Website": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For Head of Operations": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For CEO or Founder": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript7": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript6": {
+      "main": [
+        [
+          {
+            "node": "For CEO or Founder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For company linkedin": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3daebb02-ac26-4d1e-b15f-cf443265f755",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5b0dfd2044e184863e583610c8c0010916f7c39c7e15938f4b2220d471fbf3fa"
+  },
+  "id": "2V6bnaK7n8Ehzwyw",
+  "tags": []
+}

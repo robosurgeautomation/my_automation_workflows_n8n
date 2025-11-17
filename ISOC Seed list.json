@@ -1,0 +1,345 @@
+{
+  "name": "ISOC Seed list",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "34ccab48-c9a5-4762-9541-24b5a7345e81",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://en.wikipedia.org/wiki/List_of_universities_in_the_United_Kingdom",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a4c75d75-864c-4d3e-8ea5-2ce4ba5167be",
+      "name": "Fetch Wikipedia"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        864,
+        0
+      ],
+      "id": "653f0f78-bae5-4c75-ad1a-254b03ce58e1",
+      "name": "Batch Uni Pages"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "uni_name",
+              "cssSelector": "td:nth-child(2) a",
+              "returnArray": true
+            },
+            {
+              "key": "uni_wiki_href",
+              "cssSelector": "td:nth-child(2) a",
+              "returnValue": "attribute",
+              "attribute": "href",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {
+          "trimValues": true,
+          "cleanUpText": true
+        }
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "b801c845-fd5c-49ed-bfe3-66ae0eb93d94",
+      "name": "Extract uni names"
+    },
+    {
+      "parameters": {
+        "jsCode": "const out = [];\n\nfor (const item of items) {\n  // get arrays or single values\n  let names = item.json.uni_name;\n  let hrefs = item.json.uni_wiki_href;\n\n  // normalize to arrays\n  if (!Array.isArray(names)) names = names ? [names] : [];\n  if (!Array.isArray(hrefs)) hrefs = hrefs ? [hrefs] : [];\n\n  // If lengths match and are parallel, use pair mapping; otherwise fallback to href-driven\n  if (names.length === hrefs.length && names.length > 0) {\n    for (let i = 0; i < names.length; i++) {\n      const name = (names[i] || '').toString().trim();\n      const href = (hrefs[i] || '').toString().trim();\n      if (!href) continue;\n      const url = href.startsWith('http') ? href : `https://en.wikipedia.org${href}`;\n      out.push({ json: { uni_name: name, uni_wiki_url: url } });\n    }\n  } else {\n    // fallback: use hrefs as authoritative list\n    for (const href of hrefs) {\n      if (!href) continue;\n      const url = href.startsWith('http') ? href : `https://en.wikipedia.org${href}`;\n      // try to derive name from href if names array is not aligned\n      const nameFromHref = decodeURIComponent(url.split('/').pop()).replace(/_/g,' ');\n      out.push({ json: { uni_name: nameFromHref, uni_wiki_url: url } });\n    }\n  }\n}\n\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "9d7731ff-636a-42b2-b263-06313924d10f",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "url": "={{$json[\"uni_wiki_url\"]}}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1248,
+        16
+      ],
+      "id": "cb5dcf42-9d8f-459a-8323-5695d83bb777",
+      "name": "Fetch Wiki Page"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "official_site",
+              "cssSelector": "table.infobox tr:has(th:contains(\"Website\")) td a.external",
+              "returnValue": "attribute",
+              "attribute": "href"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1440,
+        16
+      ],
+      "id": "de1bd5ef-372f-480d-a4d6-30a0ea1ae124",
+      "name": "Fetch Wiki Page1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1a_S2sV_cWiqnP6plunE9-s9oWPXNO_9VWhRh4wahLRc",
+          "mode": "list",
+          "cachedResultName": "ISOC Scraper",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a_S2sV_cWiqnP6plunE9-s9oWPXNO_9VWhRh4wahLRc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "UK_Universities_Seed_List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a_S2sV_cWiqnP6plunE9-s9oWPXNO_9VWhRh4wahLRc/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "university_name": "={{ $('Batch Uni Pages').item.json.uni_name }}",
+            "uni_wiki_url": "={{ $('Batch Uni Pages').item.json.uni_wiki_url }}",
+            "official_site": "={{ $json.official_site }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "university_name",
+              "displayName": "university_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "uni_wiki_url",
+              "displayName": "uni_wiki_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "official_site",
+              "displayName": "official_site",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1600,
+        16
+      ],
+      "id": "78e851ab-6804-4602-b584-42297c57627f",
+      "name": "Append row in sheet",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Aga7pAZzmVm7QF1o",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1072,
+        16
+      ],
+      "id": "8576f320-aa1c-43e8-b684-fabde5dad896",
+      "name": "Wait",
+      "webhookId": "92ade07d-345c-493a-a492-3c30498e0908"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Fetch Wikipedia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Wikipedia": {
+      "main": [
+        [
+          {
+            "node": "Extract uni names",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Batch Uni Pages": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract uni names": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Batch Uni Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Wiki Page": {
+      "main": [
+        [
+          {
+            "node": "Fetch Wiki Page1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Wiki Page1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Batch Uni Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Fetch Wiki Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c2bee7a0-51d5-4f8b-b426-1c283c0c50d6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5b0dfd2044e184863e583610c8c0010916f7c39c7e15938f4b2220d471fbf3fa"
+  },
+  "id": "S16gPhyWrx6qxmj2",
+  "tags": []
+}
